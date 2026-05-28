@@ -314,8 +314,7 @@ export function HeaderWithActions() {
           {!matchSmallScreen && (
             <nav className="ml-3 flex items-center gap-1">
               {navLinks.map((link) => {
-                const active =
-                  link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to)
+                const active = link.to === '/' ? location.pathname === '/' : location.pathname === link.to || location.pathname.startsWith(`${link.to}/`)
                 return (
                   <Link
                     key={link.to}

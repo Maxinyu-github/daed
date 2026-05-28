@@ -609,10 +609,7 @@ export function useFlowsStatsQuery(windowSec: number) {
   return useQuery({
     queryKey: [...QUERY_KEY_FLOWS_STATS, windowSec],
     queryFn: async () => {
-      const data = await gqlClient.request<
-        { flowsStats: FlowsStatsData },
-        { windowSec: number }
-      >(
+      const data = await gqlClient.request<{ flowsStats: FlowsStatsData }, { windowSec: number }>(
         `
           query FlowsStats($windowSec: Int!) {
             flowsStats(windowSec: $windowSec) {

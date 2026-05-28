@@ -224,9 +224,7 @@ export function TrafficPage() {
                         {flow.matchedRuleText ? (
                           <span title={flow.matchedRuleText} className="line-clamp-2 max-w-[260px] break-all">
                             {typeof flow.matchedRuleIndex === 'number' && (
-                              <span className="mr-1 font-mono text-muted-foreground">
-                                #{flow.matchedRuleIndex}
-                              </span>
+                              <span className="mr-1 font-mono text-muted-foreground">#{flow.matchedRuleIndex}</span>
                             )}
                             {flow.matchedRuleText}
                           </span>

@@ -731,7 +731,13 @@ export const mockFlowsStats = {
     activeFlows: mockFlowSeed.filter((f) => !f.endedAt).length,
     ruleHits: [
       { ruleIndex: 5, ruleText: 'ip(geoip:!cn) -> proxy', hits: 2, uploadBytes: '120900', downloadBytes: '725421' },
-      { ruleIndex: 3, ruleText: 'domain(geosite:google) -> proxy', hits: 1, uploadBytes: '23456', downloadBytes: '982344' },
+      {
+        ruleIndex: 3,
+        ruleText: 'domain(geosite:google) -> proxy',
+        hits: 1,
+        uploadBytes: '23456',
+        downloadBytes: '982344',
+      },
       { ruleIndex: 1, ruleText: 'domain(geosite:cn) -> direct', hits: 1, uploadBytes: '4080', downloadBytes: '38912' },
       { ruleIndex: 0, ruleText: 'dport(53) -> direct', hits: 1, uploadBytes: '78', downloadBytes: '512' },
     ],

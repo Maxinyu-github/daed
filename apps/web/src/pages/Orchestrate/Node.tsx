@@ -91,11 +91,17 @@ export function NodeResource({
             {...provided.droppableProps}
             className={cn('flex flex-col gap-3 min-h-[100px]', snapshot.isDraggingOver && 'bg-primary/5 rounded-lg')}
           >
-            {displayedNodes.map(({ id, name, tag, protocol, link }, index) => (
+            {displayedNodes.map(({ id, name, tag, protocol, link }) => {
+              // Always use the canonical index from sortedNodes so react-beautiful-dnd's
+              // book-keeping stays consistent — even though displayedNodes may be reordered
+              // visually when `sortByLatency` is on. In that mode dragging is disabled.
+              const originalIndex = sortedNodes.findIndex((n) => n.id === id)
+              return (
               <SortableNodeCard
                 key={id}
                 id={`node-${id}`}
-                index={index}
+                index={originalIndex < 0 ? 0 : originalIndex}
+                isDragDisabled={sortByLatency}
                 name={tag || name}
                 leftSection={protocol}
                 actions={
@@ -151,7 +157,8 @@ export function NodeResource({
                 {name && name !== tag && <p className="text-xs opacity-70">{name}</p>}
                 <Spoiler label={link} showLabel={t('actions.show sensitive')} hideLabel={t('actions.hide')} />
               </SortableNodeCard>
-            ))}
+              )
+            })}
             {provided.placeholder}
           </div>
         )}
