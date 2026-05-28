@@ -1,9 +1,9 @@
+import type { NodeLatencyProbeResult } from '~/apis'
 import type { QRCodeModalRef } from '~/components/QRCodeModal.tsx'
 import type { NodesQuery } from '~/schemas/gql/graphql.ts'
-import type { NodeLatencyProbeResult } from '~/apis'
 import { Droppable } from '@hello-pangea/dnd'
-import { Cloud, CloudUpload, Eye, FileInput, Pencil } from 'lucide-react'
-import { Fragment, useRef, useState } from 'react'
+import { Cloud, CloudUpload, Eye, FileInput, Gauge, Pencil } from 'lucide-react'
+import { Fragment, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useImportNodesMutation, useRemoveNodesMutation } from '~/apis/index.ts'
 import { EditNodeFormModal } from '~/components/EditNodeFormModal.tsx'
@@ -14,7 +14,7 @@ import { Section } from '~/components/Section.tsx'
 import { Button } from '~/components/ui/button.tsx'
 import { SimpleTooltip } from '~/components/ui/tooltip.tsx'
 import { cn } from '~/lib/utils'
-import { formatLatencyLabel } from '~/utils/latency'
+import { formatLatencyLabel, getLatencyTone, latencyToneBadgeClass } from '~/utils/latency'
 
 export const NODE_DROPPABLE_ID = 'node-list'
 
@@ -33,6 +33,7 @@ export function NodeResource({
   const [openedImportNodeFormModal, setOpenedImportNodeFormModal] = useState(false)
   const [openedConfigureNodeFormModal, setOpenedConfigureNodeFormModal] = useState(false)
   const [openedEditNodeFormModal, setOpenedEditNodeFormModal] = useState(false)
+  const [sortByLatency, setSortByLatency] = useState(false)
   const [editingNode, setEditingNode] = useState<{
     id: string
     link: string
@@ -43,6 +44,19 @@ export function NodeResource({
   const removeNodesMutation = useRemoveNodesMutation()
   const importNodesMutation = useImportNodesMutation()
 
+  // When sortByLatency is on, present nodes ordered by measured latency ascending.
+  // Nodes without a measurement go last.
+  const displayedNodes = useMemo(() => {
+    if (!sortByLatency) return sortedNodes
+    const rank = (id: string) => {
+      const r = nodeLatencies?.[id]
+      if (r && typeof r.latencyMs === 'number') return r.latencyMs
+      if (r && r.alive === false) return Number.MAX_SAFE_INTEGER - 1
+      return Number.MAX_SAFE_INTEGER
+    }
+    return [...sortedNodes].sort((a, b) => rank(a.id) - rank(b.id))
+  }, [sortedNodes, sortByLatency, nodeLatencies])
+
   return (
     <Section
       title={t('node')}
@@ -50,11 +64,22 @@ export function NodeResource({
       iconPlus={<CloudUpload className="h-4 w-4" />}
       onCreate={() => setOpenedImportNodeFormModal(true)}
       actions={
-        <SimpleTooltip label={t('actions.configureNode')}>
-          <Button variant="ghost" size="icon" onClick={() => setOpenedConfigureNodeFormModal(true)}>
-            <FileInput className="h-4 w-4" />
-          </Button>
-        </SimpleTooltip>
+        <Fragment>
+          <SimpleTooltip label={sortByLatency ? t('actions.sortDefault') : t('actions.sortByLatency')}>
+            <Button
+              variant={sortByLatency ? 'default' : 'ghost'}
+              size="icon"
+              onClick={() => setSortByLatency((v) => !v)}
+            >
+              <Gauge className="h-4 w-4" />
+            </Button>
+          </SimpleTooltip>
+          <SimpleTooltip label={t('actions.configureNode')}>
+            <Button variant="ghost" size="icon" onClick={() => setOpenedConfigureNodeFormModal(true)}>
+              <FileInput className="h-4 w-4" />
+            </Button>
+          </SimpleTooltip>
+        </Fragment>
       }
       bordered
       highlight={highlight}
@@ -66,7 +91,7 @@ export function NodeResource({
             {...provided.droppableProps}
             className={cn('flex flex-col gap-3 min-h-[100px]', snapshot.isDraggingOver && 'bg-primary/5 rounded-lg')}
           >
-            {sortedNodes.map(({ id, name, tag, protocol, link }, index) => (
+            {displayedNodes.map(({ id, name, tag, protocol, link }, index) => (
               <SortableNodeCard
                 key={id}
                 id={`node-${id}`}
@@ -114,9 +139,14 @@ export function NodeResource({
                 onRemove={() => removeNodesMutation.mutate([id])}
               >
                 {nodeLatencies?.[id] && (
-                  <p className="text-xs font-medium text-primary">
+                  <span
+                    className={cn(
+                      'inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[11px] font-medium',
+                      latencyToneBadgeClass(getLatencyTone(nodeLatencies[id])),
+                    )}
+                  >
                     {formatLatencyLabel(nodeLatencies[id], t)}
-                  </p>
+                  </span>
                 )}
                 {name && name !== tag && <p className="text-xs opacity-70">{name}</p>}
                 <Spoiler label={link} showLabel={t('actions.show sensitive')} hideLabel={t('actions.hide')} />

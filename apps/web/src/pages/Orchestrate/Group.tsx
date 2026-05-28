@@ -33,7 +33,7 @@ import { useDisclosure } from '~/hooks'
 import { cn } from '~/lib/utils'
 import { appStateAtom, defaultResourcesAtom } from '~/store'
 import { getInstantDropStyle } from '~/utils'
-import { formatLatencyLabel, hasMeasuredLatency } from '~/utils/latency'
+import { formatLatencyLabel, hasMeasuredLatency, summarizeLatencies } from '~/utils/latency'
 
 const GROUP_DROPPABLE_ID = 'group-list'
 
@@ -259,7 +259,17 @@ export function GroupResource({
     groupSubscriptions: GroupsQuery['groups'][number]['subscriptions']
     dragHandleProps?: DraggableProvidedDragHandleProps | null
     snapshot?: DraggableStateSnapshot
-  }) => (
+  }) => {
+    const groupNodeIds = new Set<string>()
+    for (const node of groupNodes) groupNodeIds.add(node.id)
+    for (const binding of groupSubscriptions) {
+      for (const node of binding.matchedNodes) groupNodeIds.add(node.id)
+    }
+    const groupLatencyStats = summarizeLatencies(
+      Array.from(groupNodeIds).map((nodeId) => nodeLatencies?.[nodeId]),
+    )
+
+    return (
     <div data-group-card-id={groupId} className={cn(snapshot?.isDragging && 'z-50 opacity-90')}>
       <DroppableGroupCard
         id={groupId}
@@ -271,6 +281,17 @@ export function GroupResource({
             </span>
             <span>{t('groupPicker.nodesCount', { count: groupNodes.length })}</span>
             <span>{t('groupPicker.subscriptionGroupsCount', { count: groupSubscriptions.length })}</span>
+            {groupLatencyStats.measuredCount > 0 && (
+              <span className="text-primary" title={t('latency.groupHealthTooltip', {
+                measured: groupLatencyStats.measuredCount,
+                total: groupLatencyStats.total,
+              })}>
+                {t('latency.groupHealth', {
+                  min: groupLatencyStats.min,
+                  median: groupLatencyStats.median,
+                })}
+              </span>
+            )}
           </>
         }
         collapsed={!expandedGroupIds.has(groupId)}
@@ -331,7 +352,8 @@ export function GroupResource({
         />
       </DroppableGroupCard>
     </div>
-  )
+    )
+  }
 
   return (
     <Section

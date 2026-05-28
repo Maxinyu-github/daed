@@ -59,6 +59,8 @@
     "show sensitive": "点击查看",
     "simple mode": "简单模式",
     "skip": "跳过",
+    "sortByLatency": "按延迟排序",
+    "sortDefault": "恢复自定义排序",
     "start your journey": "开始你的旅程",
     "submit": "提交",
     "switchLanguage": "切换语言",
@@ -248,7 +250,9 @@
     "testAllNodesWithStatus": "测试所有节点延迟 · 最近测速时间 {{ time }} · 已测速 {{ count }} 个节点",
     "nodesMeasured": "已测速 {{ count }} 个节点",
     "failed": "失败",
-    "unavailable": "不可用"
+    "unavailable": "不可用",
+    "groupHealth": "最快 {{ min }}ms · 中位 {{ median }}ms",
+    "groupHealthTooltip": "本组共 {{ total }} 个节点，{{ measured }} 个已有延迟测量"
   },
   "link": "链接",
   "logLevel": "日志等级",

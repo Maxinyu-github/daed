@@ -59,6 +59,8 @@
     "show sensitive": "Click to reveal",
     "simple mode": "Simple Mode",
     "skip": "Skip",
+    "sortByLatency": "Sort by latency",
+    "sortDefault": "Restore custom order",
     "start your journey": "Start your journey",
     "submit": "Submit",
     "switchLanguage": "Switch Language",
@@ -248,7 +250,9 @@
     "testAllNodesWithStatus": "Test all node latencies · Last tested at {{ time }} · {{ count }} nodes measured",
     "nodesMeasured": "{{ count }} nodes measured",
     "failed": "Failed",
-    "unavailable": "Unavailable"
+    "unavailable": "Unavailable",
+    "groupHealth": "min {{ min }}ms · med {{ median }}ms",
+    "groupHealthTooltip": "{{ measured }} of {{ total }} nodes have a latency measurement"
   },
   "link": "Link",
   "logLevel": "Log Level",
