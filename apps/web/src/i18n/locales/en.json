@@ -284,6 +284,44 @@
       "1h": "1h"
     }
   },
+  "traffic": {
+    "title": "Traffic & Rule Activity",
+    "subtitle": "Per-connection records, matched routing rule and the outbound it took.",
+    "clearRecords": "Clear records",
+    "cleared": "Traffic records cleared",
+    "clearFailed": "Failed to clear traffic records",
+    "recordsCount": "Showing {{shown}} of {{total}} records",
+    "emptyTitle": "No traffic recorded yet",
+    "emptyDescription": "Active connections and their matched routing rules will appear here.",
+    "unavailableTitle": "Traffic records unavailable",
+    "unavailableDescription": "The backend does not currently expose per-flow traffic. Update dae-wing to enable this page.",
+    "status": {
+      "active": "Active",
+      "closed": "Closed"
+    },
+    "columns": {
+      "time": "Time",
+      "protocol": "Proto",
+      "source": "Source",
+      "destination": "Destination",
+      "process": "Process",
+      "rule": "Matched rule",
+      "outbound": "Outbound",
+      "traffic": "Traffic",
+      "status": "Status"
+    },
+    "filters": {
+      "title": "Filter",
+      "domain": "Domain / IP",
+      "domainPlaceholder": "example.com",
+      "rule": "Rule",
+      "rulePlaceholder": "geosite:cn",
+      "outbound": "Outbound",
+      "outboundPlaceholder": "proxy",
+      "process": "Process",
+      "processPlaceholder": "chromium"
+    }
+  },
   "notifications": {
     "login succeeded": "Login Succeeded",
     "success": "Success"

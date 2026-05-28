@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/react'
 import { GraphiQL } from 'graphiql'
 import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom'
 
-import { MainLayout, OrchestratePage, SetupPage } from '~/pages'
+import { MainLayout, OrchestratePage, SetupPage, TrafficPage } from '~/pages'
 import { endpointURLAtom } from '~/store'
 
 export function Router() {
@@ -15,6 +15,7 @@ export function Router() {
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<OrchestratePage />} />
+          <Route path="traffic" element={<TrafficPage />} />
         </Route>
 
         <Route path="/setup" element={<SetupPage />} />

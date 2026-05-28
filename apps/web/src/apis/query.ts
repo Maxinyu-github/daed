@@ -5,6 +5,8 @@ import { useQuery } from '@tanstack/react-query'
 import {
   QUERY_KEY_CONFIG,
   QUERY_KEY_DNS,
+  QUERY_KEY_FLOWS,
+  QUERY_KEY_FLOWS_STATS,
   QUERY_KEY_GENERAL,
   QUERY_KEY_GROUP,
   QUERY_KEY_NODE,
@@ -470,5 +472,176 @@ export function useUserQuery() {
           }
         `),
       ),
+  })
+}
+
+/**
+ * Flow / connection record exposed by the (dae-wing) backend.
+ *
+ * The backend GraphQL fields are wired through the existing GraphQLClient.
+ * If the running backend does not yet implement `flows` / `flowsStats`,
+ * the query simply fails and consumers fall back to an empty list with
+ * an informational error state — this avoids breaking the rest of the UI.
+ */
+export interface FlowRecord {
+  id: string
+  startedAt: string
+  endedAt?: string | null
+  l4proto: string
+  srcIp: string
+  srcPort: number
+  dstIp: string
+  dstPort: number
+  dstDomain?: string | null
+  processName?: string | null
+  matchedRuleIndex?: number | null
+  matchedRuleText?: string | null
+  outboundName: string
+  groupName?: string | null
+  nodeId?: string | null
+  nodeName?: string | null
+  uploadBytes: string
+  downloadBytes: string
+  status: string
+}
+
+export interface FlowsFilterInput {
+  groupName?: string
+  nodeId?: string
+  outboundName?: string
+  ruleText?: string
+  domain?: string
+  process?: string
+}
+
+export interface FlowsQueryData {
+  edges: FlowRecord[]
+  pageInfo: {
+    hasNextPage: boolean
+    endCursor?: string | null
+  }
+}
+
+export function useFlowsQuery({
+  first = 200,
+  refetchIntervalMs = 3_000,
+  filter,
+}: {
+  first?: number
+  refetchIntervalMs?: number
+  filter?: FlowsFilterInput
+} = {}) {
+  const gqlClient = useGQLQueryClient()
+  const safeInterval = Math.max(1_000, refetchIntervalMs)
+
+  return useQuery({
+    queryKey: [...QUERY_KEY_FLOWS, first, filter ?? {}],
+    queryFn: async () => {
+      const data = await gqlClient.request<
+        { flows: FlowsQueryData },
+        { first: number; after?: string | null; filter?: FlowsFilterInput }
+      >(
+        `
+          query Flows($first: Int!, $after: ID, $filter: FlowsFilterInput) {
+            flows(first: $first, after: $after, filter: $filter) {
+              edges {
+                id
+                startedAt
+                endedAt
+                l4proto
+                srcIp
+                srcPort
+                dstIp
+                dstPort
+                dstDomain
+                processName
+                matchedRuleIndex
+                matchedRuleText
+                outboundName
+                groupName
+                nodeId
+                nodeName
+                uploadBytes
+                downloadBytes
+                status
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }
+        `,
+        { first, filter },
+      )
+      return data.flows
+    },
+    placeholderData: (previousData) => previousData,
+    refetchInterval: safeInterval,
+    retry: false,
+  })
+}
+
+export interface FlowsStatsData {
+  windowSec: number
+  totalFlows: number
+  activeFlows: number
+  ruleHits: Array<{
+    ruleIndex: number
+    ruleText: string
+    hits: number
+    uploadBytes: string
+    downloadBytes: string
+  }>
+  outboundHits: Array<{
+    outboundName: string
+    groupName?: string | null
+    hits: number
+    uploadBytes: string
+    downloadBytes: string
+  }>
+}
+
+export function useFlowsStatsQuery(windowSec: number) {
+  const gqlClient = useGQLQueryClient()
+  const refetchInterval = Math.max(1_000, Math.min(5_000, Math.round(windowSec / 60) * 500))
+
+  return useQuery({
+    queryKey: [...QUERY_KEY_FLOWS_STATS, windowSec],
+    queryFn: async () => {
+      const data = await gqlClient.request<
+        { flowsStats: FlowsStatsData },
+        { windowSec: number }
+      >(
+        `
+          query FlowsStats($windowSec: Int!) {
+            flowsStats(windowSec: $windowSec) {
+              windowSec
+              totalFlows
+              activeFlows
+              ruleHits {
+                ruleIndex
+                ruleText
+                hits
+                uploadBytes
+                downloadBytes
+              }
+              outboundHits {
+                outboundName
+                groupName
+                hits
+                uploadBytes
+                downloadBytes
+              }
+            }
+          }
+        `,
+        { windowSec },
+      )
+      return data.flowsStats
+    },
+    placeholderData: (previousData) => previousData,
+    refetchInterval,
+    retry: false,
   })
 }

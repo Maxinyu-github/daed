@@ -1,5 +1,6 @@
 import { useStore } from '@nanostores/react'
 import {
+  Activity,
   ChevronDown,
   CloudOff,
   Keyboard,
@@ -14,7 +15,7 @@ import {
 } from 'lucide-react'
 import { Fragment, useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { z } from 'zod'
 
 import {
@@ -122,6 +123,12 @@ export function HeaderWithActions() {
   }>({})
 
   const matchSmallScreen = useMediaQuery('(max-width: 640px)')
+  const location = useLocation()
+
+  const navLinks: Array<{ to: string; label: string; icon: React.ReactNode }> = [
+    { to: '/', label: t('orchestrate'), icon: <Wifi className="h-4 w-4" /> },
+    { to: '/traffic', label: t('traffic.title'), icon: <Activity className="h-4 w-4" /> },
+  ]
 
   // Toggle language function
   const toggleLanguage = useCallback(() => {
@@ -303,6 +310,30 @@ export function HeaderWithActions() {
               </Code>
             </SimpleTooltip>
           )}
+
+          {!matchSmallScreen && (
+            <nav className="ml-3 flex items-center gap-1">
+              {navLinks.map((link) => {
+                const active =
+                  link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to)
+                return (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                      active
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                    )}
+                  >
+                    {link.icon}
+                    {link.label}
+                  </Link>
+                )
+              })}
+            </nav>
+          )}
         </div>
 
         <div className={cn('flex items-center', matchSmallScreen ? 'gap-1' : 'gap-2')}>
@@ -442,6 +473,18 @@ export function HeaderWithActions() {
             {/* Profile Switcher */}
             <div className="mb-1">
               <ProfileSwitcher />
+            </div>
+
+            {/* Navigation */}
+            <div className="flex flex-col gap-0.5">
+              {navLinks.map((link) => (
+                <Link key={link.to} to={link.to} onClick={closeBurger}>
+                  <Button variant="ghost" className="w-full justify-start gap-2 h-9 px-2">
+                    {link.icon}
+                    <span className="text-sm">{link.label}</span>
+                  </Button>
+                </Link>
+              ))}
             </div>
 
             {/* User Settings Section */}

@@ -126,7 +126,11 @@ function GroupDropZone({
                   </Button>
                 </div>
 
-                {children.length > 0 ? children : <p className="py-3 text-center text-xs text-muted-foreground">{emptyLabel}</p>}
+                {children.length > 0 ? (
+                  children
+                ) : (
+                  <p className="py-3 text-center text-xs text-muted-foreground">{emptyLabel}</p>
+                )}
                 {provided.placeholder}
               </>
             )}
@@ -282,7 +286,10 @@ export function SortableGroupContent({
               {nameFilterRegex && <span>{t('groupPicker.subscriptionRegexTooltip', { regex: nameFilterRegex })}</span>}
               {matchedNodes.length > 0 && (
                 <span className="opacity-80">
-                  {matchedNodes.slice(0, 5).map((node) => node.name).join(', ')}
+                  {matchedNodes
+                    .slice(0, 5)
+                    .map((node) => node.name)
+                    .join(', ')}
                   {matchedNodes.length > 5 && ` +${matchedNodes.length - 5}`}
                 </span>
               )}
