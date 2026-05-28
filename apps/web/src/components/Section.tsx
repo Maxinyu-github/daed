@@ -19,7 +19,7 @@ export function Section({
   icon?: React.ReactNode
   bordered?: boolean
   iconPlus?: React.ReactNode
-  onCreate: () => void
+  onCreate?: () => void
   actions?: React.ReactNode
   highlight?: boolean
   children: React.ReactNode
@@ -43,11 +43,13 @@ export function Section({
 
         <div className="flex items-center gap-2">
           {actions}
-          <SimpleTooltip label={t('actions.add')}>
-            <Button variant="ghost" size="icon" onClick={onCreate}>
-              {iconPlus || <Plus className="h-4 w-4" />}
-            </Button>
-          </SimpleTooltip>
+          {onCreate && (
+            <SimpleTooltip label={t('actions.add')}>
+              <Button variant="ghost" size="icon" onClick={onCreate}>
+                {iconPlus || <Plus className="h-4 w-4" />}
+              </Button>
+            </SimpleTooltip>
+          )}
         </div>
       </div>
 

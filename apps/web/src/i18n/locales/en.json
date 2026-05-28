@@ -59,6 +59,8 @@
     "show sensitive": "Click to reveal",
     "simple mode": "Simple Mode",
     "skip": "Skip",
+    "sortByLatency": "Sort by latency",
+    "sortDefault": "Restore custom order",
     "start your journey": "Start your journey",
     "submit": "Submit",
     "switchLanguage": "Switch Language",
@@ -248,7 +250,9 @@
     "testAllNodesWithStatus": "Test all node latencies · Last tested at {{ time }} · {{ count }} nodes measured",
     "nodesMeasured": "{{ count }} nodes measured",
     "failed": "Failed",
-    "unavailable": "Unavailable"
+    "unavailable": "Unavailable",
+    "groupHealth": "min {{ min }}ms · med {{ median }}ms",
+    "groupHealthTooltip": "{{ measured }} of {{ total }} nodes have a latency measurement"
   },
   "link": "Link",
   "logLevel": "Log Level",
@@ -278,6 +282,44 @@
       "10m": "10m",
       "30m": "30m",
       "1h": "1h"
+    }
+  },
+  "traffic": {
+    "title": "Traffic & Rule Activity",
+    "subtitle": "Per-connection records, matched routing rule and the outbound it took.",
+    "clearRecords": "Clear records",
+    "cleared": "Traffic records cleared",
+    "clearFailed": "Failed to clear traffic records",
+    "recordsCount": "Showing {{shown}} of {{total}} records",
+    "emptyTitle": "No traffic recorded yet",
+    "emptyDescription": "Active connections and their matched routing rules will appear here.",
+    "unavailableTitle": "Traffic records unavailable",
+    "unavailableDescription": "The backend does not currently expose per-flow traffic. Update dae-wing to enable this page.",
+    "status": {
+      "active": "Active",
+      "closed": "Closed"
+    },
+    "columns": {
+      "time": "Time",
+      "protocol": "Proto",
+      "source": "Source",
+      "destination": "Destination",
+      "process": "Process",
+      "rule": "Matched rule",
+      "outbound": "Outbound",
+      "traffic": "Traffic",
+      "status": "Status"
+    },
+    "filters": {
+      "title": "Filter",
+      "domain": "Domain / IP",
+      "domainPlaceholder": "example.com",
+      "rule": "Rule",
+      "rulePlaceholder": "geosite:cn",
+      "outbound": "Outbound",
+      "outboundPlaceholder": "proxy",
+      "process": "Process",
+      "processPlaceholder": "chromium"
     }
   },
   "notifications": {

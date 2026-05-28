@@ -59,6 +59,8 @@
     "show sensitive": "点击查看",
     "simple mode": "简单模式",
     "skip": "跳过",
+    "sortByLatency": "按延迟排序",
+    "sortDefault": "恢复自定义排序",
     "start your journey": "开始你的旅程",
     "submit": "提交",
     "switchLanguage": "切换语言",
@@ -248,7 +250,9 @@
     "testAllNodesWithStatus": "测试所有节点延迟 · 最近测速时间 {{ time }} · 已测速 {{ count }} 个节点",
     "nodesMeasured": "已测速 {{ count }} 个节点",
     "failed": "失败",
-    "unavailable": "不可用"
+    "unavailable": "不可用",
+    "groupHealth": "最快 {{ min }}ms · 中位 {{ median }}ms",
+    "groupHealthTooltip": "本组共 {{ total }} 个节点，{{ measured }} 个已有延迟测量"
   },
   "link": "链接",
   "logLevel": "日志等级",
@@ -278,6 +282,44 @@
       "10m": "10 分钟",
       "30m": "30 分钟",
       "1h": "1 小时"
+    }
+  },
+  "traffic": {
+    "title": "流量与规则",
+    "subtitle": "查看每条连接、命中的路由规则以及实际走的出站节点。",
+    "clearRecords": "清空记录",
+    "cleared": "已清空流量记录",
+    "clearFailed": "清空流量记录失败",
+    "recordsCount": "显示 {{shown}} 条 / 共 {{total}} 条",
+    "emptyTitle": "暂无流量记录",
+    "emptyDescription": "活跃连接及其命中的路由规则将出现在这里。",
+    "unavailableTitle": "流量记录不可用",
+    "unavailableDescription": "当前后端尚未提供逐流量数据。请更新 dae-wing 以启用此页面。",
+    "status": {
+      "active": "活跃",
+      "closed": "已关闭"
+    },
+    "columns": {
+      "time": "时间",
+      "protocol": "协议",
+      "source": "源",
+      "destination": "目的",
+      "process": "进程",
+      "rule": "命中的规则",
+      "outbound": "出站",
+      "traffic": "流量",
+      "status": "状态"
+    },
+    "filters": {
+      "title": "过滤",
+      "domain": "域名 / IP",
+      "domainPlaceholder": "example.com",
+      "rule": "规则",
+      "rulePlaceholder": "geosite:cn",
+      "outbound": "出站",
+      "outboundPlaceholder": "proxy",
+      "process": "进程",
+      "processPlaceholder": "chromium"
     }
   },
   "notifications": {

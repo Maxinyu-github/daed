@@ -9,6 +9,8 @@ import {
   MOCK_DEFAULT_IDS,
   mockConfigs,
   mockDNSs,
+  mockFlows,
+  mockFlowsStats,
   mockGeneral,
   mockGroups,
   mockJsonStorage,
@@ -104,6 +106,11 @@ const mockHandlers: Record<string, (variables?: Variables) => unknown> = {
   Run: () => ({ run: true }),
   SetJsonStorage: () => ({ setJsonStorage: true }),
   SetMode: () => ({ setJsonStorage: true }),
+
+  // Traffic flows
+  Flows: () => mockFlows,
+  FlowsStats: () => mockFlowsStats,
+  ClearFlows: () => ({ clearFlows: true }),
 
   UpdateAvatar: () => ({ updateAvatar: true }),
   UpdateName: () => ({ updateName: true }),

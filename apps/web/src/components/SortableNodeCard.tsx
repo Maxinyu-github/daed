@@ -19,6 +19,7 @@ export function SortableNodeCard({
   onRemove,
   actions,
   children,
+  isDragDisabled,
 }: {
   id: string
   index: number
@@ -27,13 +28,14 @@ export function SortableNodeCard({
   onRemove: () => void
   actions?: React.ReactNode
   children: React.ReactNode
+  isDragDisabled?: boolean
 }) {
   const { t } = useTranslation()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   return (
     <>
-      <Draggable draggableId={id} index={index}>
+      <Draggable draggableId={id} index={index} isDragDisabled={isDragDisabled}>
         {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
           <div
             ref={provided.innerRef}

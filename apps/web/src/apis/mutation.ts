@@ -5,10 +5,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   QUERY_KEY_CONFIG,
   QUERY_KEY_DNS,
+  QUERY_KEY_FLOWS,
+  QUERY_KEY_FLOWS_STATS,
   QUERY_KEY_GENERAL,
   QUERY_KEY_GROUP,
-  QUERY_KEY_NODE_LATENCY,
   QUERY_KEY_NODE,
+  QUERY_KEY_NODE_LATENCY,
   QUERY_KEY_ROUTING,
   QUERY_KEY_SUBSCRIPTION,
   QUERY_KEY_USER,
@@ -809,10 +811,7 @@ export function useTestNodeLatenciesMutation() {
 
   return useMutation({
     mutationFn: async (ids?: string[]) => {
-      const data = await gqlClient.request<
-        { testNodeLatencies: NodeLatencyProbeResult[] },
-        { ids?: string[] }
-      >(
+      const data = await gqlClient.request<{ testNodeLatencies: NodeLatencyProbeResult[] }, { ids?: string[] }>(
         `
           mutation TestNodeLatencies($ids: [ID!]) {
             testNodeLatencies(ids: $ids) {
@@ -1080,6 +1079,28 @@ export function useUpdateSubscriptionCronMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY_SUBSCRIPTION })
+    },
+  })
+}
+
+export function useClearFlowsMutation() {
+  const gqlClient = useGQLQueryClient()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async () => {
+      const data = await gqlClient.request<{ clearFlows: boolean }>(
+        `
+          mutation ClearFlows {
+            clearFlows
+          }
+        `,
+      )
+      return data.clearFlows
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY_FLOWS })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY_FLOWS_STATS })
     },
   })
 }

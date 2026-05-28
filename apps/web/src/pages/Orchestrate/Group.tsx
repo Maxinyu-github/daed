@@ -33,7 +33,7 @@ import { useDisclosure } from '~/hooks'
 import { cn } from '~/lib/utils'
 import { appStateAtom, defaultResourcesAtom } from '~/store'
 import { getInstantDropStyle } from '~/utils'
-import { formatLatencyLabel, hasMeasuredLatency } from '~/utils/latency'
+import { formatLatencyLabel, hasMeasuredLatency, summarizeLatencies } from '~/utils/latency'
 
 const GROUP_DROPPABLE_ID = 'group-list'
 
@@ -259,79 +259,102 @@ export function GroupResource({
     groupSubscriptions: GroupsQuery['groups'][number]['subscriptions']
     dragHandleProps?: DraggableProvidedDragHandleProps | null
     snapshot?: DraggableStateSnapshot
-  }) => (
-    <div data-group-card-id={groupId} className={cn(snapshot?.isDragging && 'z-50 opacity-90')}>
-      <DroppableGroupCard
-        id={groupId}
-        name={name}
-        summary={
-          <>
-            <span className="rounded bg-secondary px-2 py-0.5 text-[11px] font-medium text-foreground/80">
-              {policy}
-            </span>
-            <span>{t('groupPicker.nodesCount', { count: groupNodes.length })}</span>
-            <span>{t('groupPicker.subscriptionGroupsCount', { count: groupSubscriptions.length })}</span>
-          </>
-        }
-        collapsed={!expandedGroupIds.has(groupId)}
-        dragHandleProps={dragHandleProps}
-        onToggleCollapsed={() => setGroupExpanded(groupId, !expandedGroupIds.has(groupId))}
-        onRemove={defaultGroupID !== groupId ? () => removeGroupMutation.mutate(groupId) : undefined}
-        onRename={(newName) => renameGroupMutation.mutate({ id: groupId, name: newName })}
-        actions={
-          <SimpleTooltip label={t('actions.settings')}>
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={() => {
-                updateGroupFormModalRef.current?.setEditingID(groupId)
+  }) => {
+    const groupNodeIds = new Set<string>()
+    for (const node of groupNodes) groupNodeIds.add(node.id)
+    for (const binding of groupSubscriptions) {
+      for (const node of binding.matchedNodes) groupNodeIds.add(node.id)
+    }
+    const groupLatencyStats = summarizeLatencies(Array.from(groupNodeIds).map((nodeId) => nodeLatencies?.[nodeId]))
 
-                updateGroupFormModalRef.current?.initOrigins({
-                  name,
-                  policy,
-                })
-
-                openUpdateGroupFormModal()
-              }}
-            >
-              <Settings2 className="h-4 w-4" />
-            </Button>
-          </SimpleTooltip>
-        }
-      >
-        <SortableGroupContent
-          groupId={groupId}
-          nodes={groupNodes}
-          subscriptions={groupSubscriptions}
-          nodeLatencies={nodeLatencies}
-          allSubscriptions={subscriptionsQuery?.subscriptions}
-          autoExpandValue={autoExpandValue}
+    return (
+      <div data-group-card-id={groupId} className={cn(snapshot?.isDragging && 'z-50 opacity-90')}>
+        <DroppableGroupCard
+          id={groupId}
+          name={name}
+          summary={
+            <>
+              <span className="rounded bg-secondary px-2 py-0.5 text-[11px] font-medium text-foreground/80">
+                {policy}
+              </span>
+              <span>{t('groupPicker.nodesCount', { count: groupNodes.length })}</span>
+              <span>{t('groupPicker.subscriptionGroupsCount', { count: groupSubscriptions.length })}</span>
+              {groupLatencyStats.measuredCount > 0 && (
+                <span
+                  className="text-primary"
+                  title={t('latency.groupHealthTooltip', {
+                    measured: groupLatencyStats.measuredCount,
+                    total: groupLatencyStats.total,
+                  })}
+                >
+                  {t('latency.groupHealth', {
+                    min: groupLatencyStats.min,
+                    median: groupLatencyStats.median,
+                  })}
+                </span>
+              )}
+            </>
+          }
           collapsed={!expandedGroupIds.has(groupId)}
-          onExpand={() => setGroupExpanded(groupId, true)}
-          onDelNode={(nodeId) =>
-            groupDelNodesMutation.mutate({
-              id: groupId,
-              nodeIDs: [nodeId],
-            })
+          dragHandleProps={dragHandleProps}
+          onToggleCollapsed={() => setGroupExpanded(groupId, !expandedGroupIds.has(groupId))}
+          onRemove={defaultGroupID !== groupId ? () => removeGroupMutation.mutate(groupId) : undefined}
+          onRename={(newName) => renameGroupMutation.mutate({ id: groupId, name: newName })}
+          actions={
+            <SimpleTooltip label={t('actions.settings')}>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() => {
+                  updateGroupFormModalRef.current?.setEditingID(groupId)
+
+                  updateGroupFormModalRef.current?.initOrigins({
+                    name,
+                    policy,
+                  })
+
+                  openUpdateGroupFormModal()
+                }}
+              >
+                <Settings2 className="h-4 w-4" />
+              </Button>
+            </SimpleTooltip>
           }
-          onDelSubscription={(subscriptionId) =>
-            groupDelSubscriptionsMutation.mutate({
-              id: groupId,
-              subscriptionIDs: [subscriptionId],
-            })
-          }
-          onOpenAddNodes={() => {
-            setGroupExpanded(groupId, true)
-            setAddingNodesGroupId(groupId)
-          }}
-          onOpenAddSubscriptions={() => {
-            setGroupExpanded(groupId, true)
-            setAddingSubscriptionsGroupId(groupId)
-          }}
-        />
-      </DroppableGroupCard>
-    </div>
-  )
+        >
+          <SortableGroupContent
+            groupId={groupId}
+            nodes={groupNodes}
+            subscriptions={groupSubscriptions}
+            nodeLatencies={nodeLatencies}
+            allSubscriptions={subscriptionsQuery?.subscriptions}
+            autoExpandValue={autoExpandValue}
+            collapsed={!expandedGroupIds.has(groupId)}
+            onExpand={() => setGroupExpanded(groupId, true)}
+            onDelNode={(nodeId) =>
+              groupDelNodesMutation.mutate({
+                id: groupId,
+                nodeIDs: [nodeId],
+              })
+            }
+            onDelSubscription={(subscriptionId) =>
+              groupDelSubscriptionsMutation.mutate({
+                id: groupId,
+                subscriptionIDs: [subscriptionId],
+              })
+            }
+            onOpenAddNodes={() => {
+              setGroupExpanded(groupId, true)
+              setAddingNodesGroupId(groupId)
+            }}
+            onOpenAddSubscriptions={() => {
+              setGroupExpanded(groupId, true)
+              setAddingSubscriptionsGroupId(groupId)
+            }}
+          />
+        </DroppableGroupCard>
+      </div>
+    )
+  }
 
   return (
     <Section
