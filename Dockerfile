@@ -10,7 +10,7 @@ RUN pnpm build
 
 
 
-FROM golang:1.22-bookworm AS build-bundle
+FROM golang:1.24-bookworm AS build-bundle
 
 RUN \
     apt-get update; apt-get install -y git make llvm-15 clang-15; \
