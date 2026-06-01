@@ -1,12 +1,10 @@
-import type { NodeLatencyProbeResult } from '~/apis'
 import type { QRCodeModalRef } from '~/components/QRCodeModal'
 import type { SubscriptionsQuery } from '~/schemas/gql/graphql'
 import { Droppable } from '@hello-pangea/dnd'
 import dayjs from 'dayjs'
-import { CloudCog, CloudUpload, Download, Eye, Gauge, Pencil } from 'lucide-react'
+import { CloudCog, CloudUpload, Download, Eye, Pencil } from 'lucide-react'
 import { Fragment, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import {
   useImportSubscriptionsMutation,
   useRemoveSubscriptionsMutation,
@@ -28,20 +26,11 @@ import { SimpleTooltip } from '~/components/ui/tooltip'
 import { UpdateSubscriptionAction } from '~/components/UpdateSubscriptionAction'
 import { useDisclosure } from '~/hooks'
 import { cn } from '~/lib/utils'
-import { formatLatencyLabel } from '~/utils/latency'
 
 export function SubscriptionResource({
   sortedSubscriptions,
-  nodeLatencies,
-  testingLatencies,
-  lastLatencyProbeAt,
-  onTestAllNodeLatencies,
 }: {
   sortedSubscriptions: SubscriptionsQuery['subscriptions']
-  nodeLatencies?: Record<string, NodeLatencyProbeResult>
-  testingLatencies?: boolean
-  lastLatencyProbeAt?: string | null
-  onTestAllNodeLatencies: () => Promise<void>
 }) {
   const { t } = useTranslation()
 
@@ -80,32 +69,6 @@ export function SubscriptionResource({
       bordered
       actions={
         <Fragment>
-          {sortedSubscriptions.length > 0 && (
-            <SimpleTooltip
-              label={
-                lastLatencyProbeAt
-                  ? t('latency.testAllNodesWithStatus', {
-                      time: dayjs(lastLatencyProbeAt).format('HH:mm:ss'),
-                      count: Object.keys(nodeLatencies || {}).length,
-                    })
-                  : t('latency.testAllNodes')
-              }
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  onTestAllNodeLatencies().catch((error) => {
-                    console.error('Failed to test node latencies', error)
-                    toast.error(error instanceof Error ? error.message : t('latency.unavailable'))
-                  })
-                }}
-                loading={testingLatencies}
-              >
-                <Gauge className="h-4 w-4" />
-              </Button>
-            </SimpleTooltip>
-          )}
           {sortedSubscriptions.length > 2 && (
             <SimpleTooltip label={t('actions.updateAll')}>
               <Button
@@ -211,7 +174,6 @@ export function SubscriptionResource({
                                   id={`subscription-node-${id}`}
                                   index={nodeIndex}
                                   name={name}
-                                  meta={formatLatencyLabel(nodeLatencies?.[id], t)}
                                 >
                                   {name}
                                 </DraggableResourceBadge>

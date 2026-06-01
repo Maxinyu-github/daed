@@ -1,4 +1,3 @@
-import type { NodeLatencyProbeResult } from '~/apis'
 import { Droppable } from '@hello-pangea/dnd'
 import { useStore } from '@nanostores/react'
 import { ChevronDown, Plus } from 'lucide-react'
@@ -8,7 +7,6 @@ import { SortableResourceBadge } from '~/components/SortableResourceBadge'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/utils'
 import { groupSortOrdersAtom } from '~/store'
-import { formatLatencyLabel } from '~/utils/latency'
 
 interface GroupNode {
   id: string
@@ -145,7 +143,6 @@ export function SortableGroupContent({
   groupId,
   nodes,
   subscriptions,
-  nodeLatencies,
   allSubscriptions,
   autoExpandValue,
   collapsed,
@@ -158,7 +155,6 @@ export function SortableGroupContent({
   groupId: string
   nodes: GroupNode[]
   subscriptions: GroupSubscription[]
-  nodeLatencies?: Record<string, NodeLatencyProbeResult>
   allSubscriptions?: Subscription[]
   autoExpandValue?: string
   collapsed?: boolean
@@ -248,7 +244,6 @@ export function SortableGroupContent({
             name={tag || name}
             protocol={protocol}
             address={address}
-            meta={formatLatencyLabel(nodeLatencies?.[nodeId], t)}
             onRemove={() => onDelNode(nodeId)}
           >
             {subscriptionID && allSubscriptions?.find((subscription) => subscription.id === subscriptionID)?.tag}

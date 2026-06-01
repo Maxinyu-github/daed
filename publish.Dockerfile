@@ -12,14 +12,18 @@ RUN \
 
 # build bundle process
 ENV CGO_ENABLED=0
+ENV GOPROXY=https://goproxy.io,https://proxy.golang.org,direct
 ARG DAED_VERSION
 
 WORKDIR /build
 
-COPY ./apps/web/dist/ ./web/
 COPY ./wing/ ./wing/
 
+# Cache Go module downloads in a separate layer
 WORKDIR /build/wing
+RUN go mod download
+
+COPY ./apps/web/dist/ /build/web/
 
 RUN make APPNAME=daed VERSION=$DAED_VERSION OUTPUT=daed WEB_DIST=/build/web/ bundle
 

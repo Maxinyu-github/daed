@@ -1,6 +1,5 @@
 import { useStore } from '@nanostores/react'
 import {
-  Activity,
   ChevronDown,
   CloudOff,
   Keyboard,
@@ -127,7 +126,6 @@ export function HeaderWithActions() {
 
   const navLinks: Array<{ to: string; label: string; icon: React.ReactNode }> = [
     { to: '/', label: t('orchestrate'), icon: <Wifi className="h-4 w-4" /> },
-    { to: '/traffic', label: t('traffic.title'), icon: <Activity className="h-4 w-4" /> },
   ]
 
   // Toggle language function
